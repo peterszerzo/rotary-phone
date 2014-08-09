@@ -3,8 +3,7 @@
 
 var RPH = {};
 
-var valid = true;
-var digit = -1;
+var W, H, minWH;
 
 RPH.dialer = {
 
@@ -17,6 +16,132 @@ RPH.dialer = {
     }
 
 };
+
+RPH.mouseUp = function(e) {
+
+    RPH.mouse.get(e);
+
+};
+
+RPH.mouseDown = function(e) {
+
+    RPH.mouse.down(e);
+
+    RPH.mouse.isDragging = (RPH.phone.alpha < 0.03 && RPH.phone.activeDigit !== -1);
+
+    if (RPH.phone.text.isHovered()) {
+        RPH.dialer.dial();
+    }
+
+
+};
+
+RPH.mouseMove = function(e) {
+
+    var xc = RPH.phone.centroid.x,
+        yc = RPH.phone.centroid.y,
+        angle, i, xt, yt;
+
+    RPH.mouse.move(e);
+
+    if (RPH.mouse.isDragging) {
+
+        RPH.phone.alpha = getAngle(W * xc, H * yc, RPH.mouse.x, RPH.mouse.y) - getAngle(W * xc, H * yc, RPH.mouse.xDrag, RPH.mouse.yDrag);
+
+        // dialing only works forward
+        RPH.phone.alpha = (RPH.phone.alpha < 0) ? 0 : RPH.phone.alpha;
+
+        if (RPH.phone.alpha > ((10 - RPH.activeDigit) * RPH.phone.dBeta + RPH.phone.rBeta)) {
+
+            RPH.mouse.isDragging = false;
+
+            if (RPH.dialer.number.length < 12) RPH.dialer.number += digit;
+            if (RPH.dialer.number.length === 3 || RPH.dialer.number.length === 7) RPH.dialer.number += '-';
+
+            RPH.phone.activeDigit = -1;
+
+        }
+
+    } else if (RPH.phone.alpha < 0.03) {
+
+        RPH.phone.setActiveDigit();
+
+    }
+
+    RPH.fontString = (RPH.phone.text.isHovered()) ? "bold " : "";
+    RPH.fontString += minWH / 30 + "px Courier";
+
+
+};
+
+// !main
+RPH.draw = function() {
+
+    RPH.pen.clear();
+
+    RPH.ctx.textAlign = "center";
+    RPH.ctx.textBaseline = "middle";
+
+    RPH.phone.drawRing();
+    RPH.phone.drawLine();
+    RPH.phone.drawNumber();
+    RPH.phone.drawDigits();
+
+    if (RPH.phone.alpha > 0 && !RPH.mouse.isDragging) RPH.phone.alpha -= 0.02;
+
+    RPH.canvas.addEventListener('mousedown', RPH.mouseDown);
+    RPH.canvas.addEventListener('mousemove', RPH.mouseMove);
+    RPH.canvas.addEventListener('mouseup', RPH.mouseUp);
+
+};
+
+function touchHandler(event) {
+
+    var touch = event.changedTouches[0],
+        simulatedEvent = document.createEvent("MouseEvent");
+
+    simulatedEvent.initMouseEvent({
+            touchstart: "mousedown",
+            touchmove: "mousemove",
+            touchend: "mouseup"
+        }[event.type], true, true, window, 1,
+        touch.screenX, touch.screenY,
+        touch.clientX, touch.clientY, false,
+        false, false, false, 0, null);
+
+    touch.target.dispatchEvent(simulatedEvent);
+    event.preventDefault();
+
+}
+
+RPH.init = function() {
+
+    document.addEventListener("touchstart", touchHandler, true);
+    document.addEventListener("touchmove", touchHandler, true);
+    document.addEventListener("touchend", touchHandler, true);
+    document.addEventListener("touchcancel", touchHandler, true);
+
+    RPH.canvas = document.getElementById("retrophone");
+    RPH.ctx = RPH.canvas.getContext("2d");
+
+    this.resizeCanvas();
+
+    return setInterval(RPH.draw, 10);
+};
+
+RPH.resizeCanvas = function() {
+
+    RPH.canvas.width = window.innerWidth;
+    RPH.canvas.height = window.innerHeight;
+    W = RPH.canvas.width;
+    H = RPH.canvas.height;
+    minWH = Math.min(W, H);
+
+};
+
+RPH.init();
+
+window.addEventListener('resize', RPH.resizeCanvas, false);
 
 RPH.mouse = {
 
@@ -58,7 +183,32 @@ RPH.mouse = {
 
 };
 
-var W, H, minWH;
+function circle(x, y, r) {
+
+    RPH.ctx.beginPath();
+    RPH.ctx.arc(x, y, r, 0, Math.PI * 2, true);
+    RPH.ctx.fill();
+
+}
+
+function rect(x, y, w, h) {
+
+    RPH.ctx.beginPath();
+    RPH.ctx.rect(x, y, w, h);
+    RPH.ctx.closePath();
+    RPH.ctx.fill();
+
+}
+
+RPH.pen = {
+
+    clear: function() {
+
+        RPH.ctx.clearRect(0, 0, W, H);
+
+    }
+
+};
 
 RPH.phone = {
 
@@ -71,11 +221,34 @@ RPH.phone = {
     r0: 0.35,
     r2: 0.23,
     r1: 0.29,
-    r3: 4,
+    r3: 0.04,
 
     fontString: "",
 
     activeDigit: -1,
+
+    setActiveDigit: function() {
+
+        var angle;
+
+        this.activeDigit = -1;
+
+        for (i = 0; i < 10; i += 1) {
+
+            angle = this.oBeta + this.dBeta * i + this.alpha;
+
+            xt = W * this.centroid.xc + minWH * this.r1 * Math.cos(angle);
+            yt = H * this.centroid.yc + minWH * this.r1 * Math.sin(angle);
+
+            if (getDistance(RPH.mouse.x, RPH.mouse.y, xt, yt) < minWH * this.r3) {
+
+                this.activeDigit = i;
+
+            }
+
+        }
+
+    },
 
     drawRing: function() {
 
@@ -92,7 +265,7 @@ RPH.phone = {
 
     drawLine: function() {
 
-        var angle = this.oBeta + 10 * dBeta + rBeta,
+        var angle = this.oBeta + 10 * this.dBeta + this.rBeta,
             xc = this.centroid.x,
             yc = this.centroid.y;
 
@@ -110,7 +283,37 @@ RPH.phone = {
 
         RPH.ctx.font = this.fontString;
         RPH.ctx.fillStyle = "#444444";
-        RPH.ctx.fillText(RPH.dialer.number, W * xText, H * yText);
+        RPH.ctx.fillText(RPH.dialer.number, W * this.text.x, H * this.text.y);
+
+    },
+
+    drawDigits: function() {
+
+        var i, angle;
+
+        RPH.ctx.font = minWH / 18 + "px Courier";
+
+        for (i = 0; i < 10; i += 1) {
+
+            RPH.ctx.fillStyle = (this.activeDigit === i) ? "rgb(180,205,200)" : "rgb(240,245,240)";
+
+            angle = RPH.phone.oBeta + RPH.phone.dBeta * i + RPH.phone.alpha;
+            circle(
+                W * this.centroid.x + minWH * this.r1 * Math.cos(angle),
+                H * this.centroid.y + minWH * this.r1 * Math.sin(angle),
+                minWH * this.r3
+            );
+
+            RPH.ctx.fillStyle = "#444444";
+            angle = RPH.phone.oBeta + RPH.phone.dBeta * i;
+
+            RPH.ctx.fillText(
+                i,
+                W * this.centroid.x + minWH * this.r1 * Math.cos(angle),
+                H * this.centroid.y + minWH * this.r1 * Math.sin(angle)
+            );
+
+        }
 
     },
 
@@ -138,51 +341,6 @@ RPH.phone = {
 
 };
 
-// !geometric parameters
-var alpha = 0,
-    alphaPrev = 0; // phone angle
-
-var oBeta = Math.PI * 4 / 9,
-    dBeta = Math.PI / 7,
-    rBeta = Math.PI / 24;
-
-var r0 = 0.35,
-    r2 = 0.23,
-    r1 = (r0 + r2) / 2,
-    r3 = (r0 - r2) / 3;
-
-var xc = 0.5,
-    yc = 0.55,
-    xText = 0.5,
-    yText = 0.1; //centroid of shape
-
-// !drawing
-
-function circle(x, y, r) {
-
-    RPH.ctx.beginPath();
-    RPH.ctx.arc(x, y, r, 0, Math.PI * 2, true);
-    RPH.ctx.fill();
-
-}
-
-function rect(x, y, w, h) {
-
-    RPH.ctx.beginPath();
-    RPH.ctx.rect(x, y, w, h);
-    RPH.ctx.closePath();
-    RPH.ctx.fill();
-
-}
-
-function clear() {
-
-    RPH.ctx.clearRect(0, 0, W, H);
-
-}
-
-// !geometry calc
-
 function getDistance(x1, y1, x2, y2) {
 
     return Math.pow(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2), 0.5);
@@ -208,184 +366,3 @@ function getAngle(x1, y1, x2, y2) {
     return angle + Math.PI;
 
 }
-
-// !mouse event functions
-
-RPH.mouseUp = function(e) {
-
-    RPH.mouse.up();
-
-};
-
-RPH.mouseDown = function(e) {
-
-    RPH.mouse.down(e);
-
-    RPH.mouse.isDragging = (alpha < 0.03 && digit !== -1);
-
-    // check if call link is clicked
-    if (RPH.phone.text.isHovered()) {
-        RPH.dialer.dial();
-    }
-
-};
-
-RPH.mouseMove = function(e) {
-
-    RPH.mouse.move(e);
-
-    if (RPH.mouse.isDragging) {
-
-        alpha = getAngle(W * xc, H * yc, RPH.mouse.x, RPH.mouse.y) - getAngle(W * xc, H * yc, RPH.mouse.xDrag, RPH.mouse.yDrag);
-
-        alpha = (alpha < 0) ? 0 : alpha;
-
-        if (alpha > ((10 - digit) * dBeta + rBeta)) {
-
-            RPH.mouse.isDragging = false;
-
-            if (RPH.dialer.number.length < 12) RPH.dialer.number += digit;
-            if (RPH.dialer.number.length === 3 || RPH.dialer.number.length === 7) RPH.dialer.number += '-';
-
-            digit = -1;
-
-        }
-
-    }
-
-    if (alpha < 0.03) {
-
-        var digitTemp = -1;
-
-        for (var i = 0; i < 10; i += 1) {
-
-            angle = oBeta + dBeta * i + alpha;
-
-            var xt = W * xc + minWH * r1 * Math.cos(angle);
-            var yt = H * yc + minWH * r1 * Math.sin(angle);
-
-            if (getDistance(RPH.mouse.x, RPH.mouse.y, xt, yt) < minWH * r3) {
-
-                digitTemp = i;
-
-            }
-
-        }
-
-        digit = digitTemp;
-
-    }
-
-    RPH.fontString = (RPH.phone.text.isHovered()) ? "bold " : "";
-    RPH.fontString += minWH / 30 + "px Courier";
-
-
-};
-
-RPH.mouseUp = function(e) {
-
-    RPH.mouse.up(e);
-
-};
-
-// !main
-function draw() {
-
-    var angle, xt, yt, i;
-
-    clear();
-
-    RPH.ctx.textAlign = "center";
-    RPH.ctx.textBaseline = "middle";
-
-    RPH.phone.drawRing();
-    RPH.phone.drawLine();
-    RPH.phone.drawNumber();
-
-
-    RPH.ctx.lineWidth = 0;
-
-
-    if (alpha > 0 && !RPH.mouse.isDragging) alpha -= 0.02;
-
-
-
-
-    RPH.ctx.font = minWH / 18 + "px Courier";
-
-    for (i = 0; i < 10; i += 1) {
-
-        if (digit === i) RPH.ctx.fillStyle = "rgb(180,205,200)";
-        else RPH.ctx.fillStyle = "rgb(240,245,240)";
-
-        angle = oBeta + dBeta * i + alpha;
-        circle(
-            W * xc + minWH * r1 * Math.cos(angle),
-            H * yc + minWH * r1 * Math.sin(angle),
-            minWH * r3
-        );
-
-        RPH.ctx.fillStyle = "#444444";
-        angle = oBeta + dBeta * i;
-
-        RPH.ctx.fillText(
-            i,
-            W * xc + minWH * r1 * Math.cos(angle),
-            H * yc + minWH * r1 * Math.sin(angle)
-        );
-
-    }
-
-    RPH.canvas.addEventListener('mousedown', RPH.mouseDown);
-    RPH.canvas.addEventListener('mousemove', RPH.mouseMove);
-    RPH.canvas.addEventListener('mouseup', RPH.mouseUp);
-
-}
-
-function touchHandler(event) {
-
-    var touch = event.changedTouches[0],
-        simulatedEvent = document.createEvent("MouseEvent");
-
-    simulatedEvent.initMouseEvent({
-            touchstart: "mousedown",
-            touchmove: "mousemove",
-            touchend: "mouseup"
-        }[event.type], true, true, window, 1,
-        touch.screenX, touch.screenY,
-        touch.clientX, touch.clientY, false,
-        false, false, false, 0, null);
-
-    touch.target.dispatchEvent(simulatedEvent);
-    event.preventDefault();
-
-}
-
-RPH.init = function() {
-
-    document.addEventListener("touchstart", touchHandler, true);
-    document.addEventListener("touchmove", touchHandler, true);
-    document.addEventListener("touchend", touchHandler, true);
-    document.addEventListener("touchcancel", touchHandler, true);
-
-    RPH.canvas = document.getElementById("retrophone");
-    RPH.ctx = RPH.canvas.getContext("2d");
-
-    this.resizeCanvas();
-
-    return setInterval(draw, 10);
-};
-
-RPH.resizeCanvas = function() {
-
-    RPH.canvas.width = window.innerWidth;
-    RPH.canvas.height = window.innerHeight;
-    W = RPH.canvas.width;
-    H = RPH.canvas.height;
-    minWH = Math.min(W, H);
-
-};
-
-RPH.init();
-
-window.addEventListener('resize', RPH.resizeCanvas, false);
