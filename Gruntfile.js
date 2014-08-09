@@ -8,7 +8,7 @@ module.exports = function(grunt) {
 
     sourceFiles = [
 
-        'src/RetroPhone.js',
+        'src/mainApp.js',
         'src/mouse.js',
         'src/pen.js',
         'src/phone.js',

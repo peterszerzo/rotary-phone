@@ -16,7 +16,7 @@ RPH.dialer = {
 
 RPH.mouseUp = function(e) {
 
-    RPH.mouse.get(e);
+    RPH.mouse.up(e);
 
 };
 
@@ -27,9 +27,10 @@ RPH.mouseDown = function(e) {
     RPH.mouse.isDragging = (RPH.phone.alpha < 0.03 && RPH.phone.activeDigit !== -1);
 
     if (RPH.phone.text.isHovered()) {
-        RPH.dialer.dial();
-    }
 
+        RPH.dialer.dial();
+
+    }
 
 };
 
@@ -43,21 +44,7 @@ RPH.mouseMove = function(e) {
 
     if (RPH.mouse.isDragging) {
 
-        RPH.phone.alpha = getAngle(W * xc, H * yc, RPH.mouse.x, RPH.mouse.y) - getAngle(W * xc, H * yc, RPH.mouse.xDrag, RPH.mouse.yDrag);
-
-        // dialing only works forward
-        RPH.phone.alpha = (RPH.phone.alpha < 0) ? 0 : RPH.phone.alpha;
-
-        if (RPH.phone.alpha > ((10 - RPH.activeDigit) * RPH.phone.dBeta + RPH.phone.rBeta)) {
-
-            RPH.mouse.isDragging = false;
-
-            if (RPH.dialer.number.length < 12) RPH.dialer.number += digit;
-            if (RPH.dialer.number.length === 3 || RPH.dialer.number.length === 7) RPH.dialer.number += '-';
-
-            RPH.phone.activeDigit = -1;
-
-        }
+        RPH.phone.setDrag();
 
     } else if (RPH.phone.alpha < 0.03) {
 
@@ -122,8 +109,8 @@ RPH.init = function() {
     RPH.ctx = RPH.canvas.getContext("2d");
 
     this.resizeCanvas();
-
     return setInterval(RPH.draw, 10);
+
 };
 
 RPH.resizeCanvas = function() {

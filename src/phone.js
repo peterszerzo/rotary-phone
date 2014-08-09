@@ -15,6 +15,29 @@ RPH.phone = {
 
     activeDigit: -1,
 
+    setDrag: function() {
+
+        var xc = this.centroid.x,
+            yc = this.centroid.y;
+
+        this.alpha = RPH.math.getAngle(W * xc, H * yc, RPH.mouse.x, RPH.mouse.y) - RPH.math.getAngle(W * xc, H * yc, RPH.mouse.xDrag, RPH.mouse.yDrag);
+
+        // dialing only works forward
+        this.alpha = (this.alpha < 0) ? 0 : this.alpha;
+
+        if (this.alpha > ((10 - this.activeDigit) * this.dBeta + this.rBeta)) {
+
+            RPH.mouse.isDragging = false;
+
+            if (RPH.dialer.number.length < 12) RPH.dialer.number += this.activeDigit;
+            if (RPH.dialer.number.length === 3 || RPH.dialer.number.length === 7) RPH.dialer.number += '-';
+
+            this.activeDigit = -1;
+
+        }
+
+    },
+
     setActiveDigit: function() {
 
         var angle;
@@ -25,10 +48,10 @@ RPH.phone = {
 
             angle = this.oBeta + this.dBeta * i + this.alpha;
 
-            xt = W * this.centroid.xc + minWH * this.r1 * Math.cos(angle);
-            yt = H * this.centroid.yc + minWH * this.r1 * Math.sin(angle);
+            xt = W * this.centroid.x + minWH * this.r1 * Math.cos(angle);
+            yt = H * this.centroid.y + minWH * this.r1 * Math.sin(angle);
 
-            if (getDistance(RPH.mouse.x, RPH.mouse.y, xt, yt) < minWH * this.r3) {
+            if (RPH.math.getDistance(RPH.mouse.x, RPH.mouse.y, xt, yt) < minWH * this.r3) {
 
                 this.activeDigit = i;
 
@@ -44,10 +67,10 @@ RPH.phone = {
             yc = this.centroid.y;
 
         RPH.ctx.fillStyle = "#444444";
-        circle(W * xc, H * yc, minWH * this.r0);
+        RPH.pen.circle(W * xc, H * yc, minWH * this.r0);
 
         RPH.ctx.fillStyle = "rgb(240,245,240)";
-        circle(W * xc, H * yc, minWH * this.r2);
+        RPH.pen.circle(W * xc, H * yc, minWH * this.r2);
 
     },
 
@@ -69,7 +92,7 @@ RPH.phone = {
 
     drawNumber: function() {
 
-        RPH.ctx.font = this.fontString;
+        RPH.ctx.font = minWH / 25 + "px " + this.fontString;
         RPH.ctx.fillStyle = "#444444";
         RPH.ctx.fillText(RPH.dialer.number, W * this.text.x, H * this.text.y);
 
@@ -86,7 +109,7 @@ RPH.phone = {
             RPH.ctx.fillStyle = (this.activeDigit === i) ? "rgb(180,205,200)" : "rgb(240,245,240)";
 
             angle = RPH.phone.oBeta + RPH.phone.dBeta * i + RPH.phone.alpha;
-            circle(
+            RPH.pen.circle(
                 W * this.centroid.x + minWH * this.r1 * Math.cos(angle),
                 H * this.centroid.y + minWH * this.r1 * Math.sin(angle),
                 minWH * this.r3
@@ -111,9 +134,6 @@ RPH.phone = {
         y: 0.55
 
     },
-
-    xc: 0.5,
-    yc: 0.55,
 
     text: {
 

@@ -34,6 +34,12 @@ RPH.mouse = {
 
         this.get(e);
 
+    },
+
+    draw: function(e) {
+
+        RPH.pen.circle(this.x, this.y, 5);
+
     }
 
 };
