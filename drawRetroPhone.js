@@ -9,7 +9,53 @@ var fontString; // font of the string
 
 var toDial = new String("");
 
-var mausX, mausY, mausYPrev=0; // mouse coordinates
+RPH.dialer = {
+
+  number: "",
+
+  dial: function() {
+
+    window.location = "tel:" + toDial;
+
+  }
+
+};
+
+RPH.mouse = {
+
+  x: 0,
+  y: 0,
+  xPrev: 0,
+  yPrev: 0,
+  xDrag: 0,
+  yDrag: 0,
+  isDragging: false,
+
+  get: function(e) {
+
+    var rect = RPH.canvas.getBoundingClientRect();
+    this.x = e.clientX - rect.left;
+    this.y = e.clientY - rect.top;
+
+  },
+
+  down: function() {
+
+    this.xDrag = this.x;
+    this.yDrag = this.y;
+    this.isDragging = true;
+
+  },
+
+  up: function() {
+
+    this.isDragging = false;
+
+  }
+
+};
+
+var mausX, mausY; // mouse coordinates
 var mausDragX, mausDragY; // mouse coordinates
 
 var W; // width
@@ -61,21 +107,21 @@ function clear() {
 
 function getDistance(x1,y1,x2,y2) {
 
-	return Math.pow(Math.pow(x1-x2,2)+Math.pow(y1-y2,2),0.5);
+	return Math.pow( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2), 0.5);
 
 }
 
 function getAngle(x1,y1,x2,y2)
 {
 
-	if (Math.abs(x1 - x2)< W/100 && y2 > y1) return Math.PI/2;
-	if (Math.abs(x1 - x2)< W/100 && y2 < y1) return 3*Math.PI/2;
+	if (Math.abs(x1 - x2)< W/100 && y2 > y1) return 1 * Math.PI / 2;
+	if (Math.abs(x1 - x2)< W/100 && y2 < y1) return 3 * Math.PI / 2;
 	
-	var angle1=Math.atan((y2-y1)/(x2-x1));	
+	var angle1 = Math.atan( (y2 - y1) / (x2 - x1) );	
 	
-	if (x1<x2) {
+	if (x1 < x2) {
 	
-	  if(angle1<0) return angle1+2*Math.PI;
+	  if (angle1 < 0) return angle1+2*Math.PI;
 	  return angle1;
 	  
 	}
@@ -98,36 +144,40 @@ var mausDown = function(e)
 
   getMaus(e);  
   
-  dragging = (alpha<0.03 && digit!=-1);
+  dragging = (alpha<0.03 && digit!= - 1);
 
   mausDragX = mausX;
   mausDragY = mausY;
   
   // check if call link is clicked
   if (mausY / minWH < yText + 0.02 && mausY / minWH > yText-0.02) {
-	  window.location = "tel:" + toDial;
+
+    RPH.dialer.dial();
+
   }
   
 }
 
 var mausMove=function(e) {
 
-  getMaus(e);  
+  getMaus(e);
+
   if(dragging) {  
   	 	
   	 alpha = getAngle(W * xc, H * yc, mausX, mausY)-getAngle(W * xc, H * yc, mausDragX, mausDragY);
   	 
   	 alpha = (alpha < 0) ? 0 : alpha;
 	 
-	 if(alpha > ((10 - digit) * dBeta + rBeta)) {
-	 
-		 dragging = false; 
-		 if (toDial.length < 12) toDial += digit;
-		 if (toDial.length === 3 || toDial.length === 7) toDial+='-';
+  	 if(alpha > ((10 - digit) * dBeta + rBeta)) {
+  	 
+  		 dragging = false; 
 
-		 digit=-1;
-		 
-	 }	 
+       if (RPH.dialer.number.length < 12) RPH.dialer.number += digit;
+       if (RPH.dialer.number.length === 3 || RPH.dialer.number.length === 7) RPH.dialer.number += '-';
+
+  		 digit=-1;
+  		 
+  	 }	 
 	 
   }
   
@@ -137,30 +187,30 @@ var mausMove=function(e) {
  	 
      for(var i=0;i<10;i++) {
      
-		 angle = oBeta + dBeta * i + alpha;
-		 var xt = W * xc + minWH * r1 * Math.cos(angle);
-		 var yt = H * yc + minWH * r1 * Math.sin(angle);
-		 
-		 if (getDistance(mausX, mausY, xt, yt) < minWH * r3) {
-		 
-			 digitTemp = i;
-			 
-		 }
+  		 angle = oBeta + dBeta * i + alpha;
+  		 var xt = W * xc + minWH * r1 * Math.cos(angle);
+  		 var yt = H * yc + minWH * r1 * Math.sin(angle);
+  		 
+  		 if (getDistance(mausX, mausY, xt, yt) < minWH * r3) {
+  		 
+  			 digitTemp = i;
+  			 
+  		 }
 		 
   	 }
   	 
-  	 digit=digitTemp;
+  	 digit = digitTemp;
   	 		 
   }   
   
   
-  if (mausY/minWH < yText+0.02 && mausY/minWH > yText-0.02) {
+  if (mausY / minWH < yText + 0.02 && mausY / minWH > yText - 0.02) {
   
-	  fontString="bold " + minWH/30 + "px Courier";
+	  fontString = "bold " + minWH / 30 + "px Courier";
 	  
   } else {
   
-	  fontString=minWH/30 + "px Courier";
+	  fontString = minWH / 30 + "px Courier";
 	  
   }
   
@@ -169,7 +219,7 @@ var mausMove=function(e) {
 var mouseUp=function(e) {
 
 	getMaus(e);   
-  	dragging=false;
+  dragging=false;
   	
 }
 
@@ -192,7 +242,7 @@ function draw()
   RPH.ctx.strokeStyle = "rgb(240,245,240)";
   
   
-  angle=oBeta+(10)*dBeta+rBeta;
+  angle = oBeta+(10)*dBeta+rBeta;
   
   RPH.ctx.beginPath();
   RPH.ctx.moveTo(W * xc + r0 * minWH * Math.cos(angle), H * yc + r0 * minWH * Math.sin(angle));
@@ -211,7 +261,7 @@ function draw()
   RPH.ctx.font=fontString;
   RPH.ctx.fillStyle = "#444444";
   
-  RPH.ctx.fillText(toDial,W*xText,H*yText);
+  RPH.ctx.fillText(RPH.dialer.number, W * xText, H * yText);
   
   RPH.ctx.font = minWH / 18+ "px Courier";
   
