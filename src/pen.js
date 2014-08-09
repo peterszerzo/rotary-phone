@@ -2,7 +2,7 @@ RPH.pen = {
 
     clear: function() {
 
-        RPH.ctx.clearRect(0, 0, W, H);
+        RPH.ctx.clearRect(0, 0, RPH.W, RPH.H);
 
     },
 

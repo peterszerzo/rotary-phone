@@ -10,8 +10,8 @@ RPH.math = {
 
         var angle;
 
-        if (Math.abs(x1 - x2) < W / 100 && y2 > y1) return 1 * Math.PI / 2;
-        if (Math.abs(x1 - x2) < W / 100 && y2 < y1) return 3 * Math.PI / 2;
+        if (Math.abs(x1 - x2) < RPH.W / 100 && y2 > y1) return 1 * Math.PI / 2;
+        if (Math.abs(x1 - x2) < RPH.W / 100 && y2 < y1) return 3 * Math.PI / 2;
 
         angle = Math.atan((y2 - y1) / (x2 - x1));
 

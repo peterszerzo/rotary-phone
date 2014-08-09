@@ -20,7 +20,7 @@ RPH.phone = {
         var xc = this.centroid.x,
             yc = this.centroid.y;
 
-        this.alpha = RPH.math.getAngle(W * xc, H * yc, RPH.mouse.x, RPH.mouse.y) - RPH.math.getAngle(W * xc, H * yc, RPH.mouse.xDrag, RPH.mouse.yDrag);
+        this.alpha = RPH.math.getAngle(RPH.W * xc, RPH.H * yc, RPH.mouse.x, RPH.mouse.y) - RPH.math.getAngle(RPH.W * xc, RPH.H * yc, RPH.mouse.xDrag, RPH.mouse.yDrag);
 
         // dialing only works forward
         this.alpha = (this.alpha < 0) ? 0 : this.alpha;
@@ -48,10 +48,10 @@ RPH.phone = {
 
             angle = this.oBeta + this.dBeta * i + this.alpha;
 
-            xt = W * this.centroid.x + minWH * this.r1 * Math.cos(angle);
-            yt = H * this.centroid.y + minWH * this.r1 * Math.sin(angle);
+            xt = RPH.W * this.centroid.x + RPH.minWH * this.r1 * Math.cos(angle);
+            yt = RPH.H * this.centroid.y + RPH.minWH * this.r1 * Math.sin(angle);
 
-            if (RPH.math.getDistance(RPH.mouse.x, RPH.mouse.y, xt, yt) < minWH * this.r3) {
+            if (RPH.math.getDistance(RPH.mouse.x, RPH.mouse.y, xt, yt) < RPH.minWH * this.r3) {
 
                 this.activeDigit = i;
 
@@ -67,10 +67,10 @@ RPH.phone = {
             yc = this.centroid.y;
 
         RPH.ctx.fillStyle = "#444444";
-        RPH.pen.circle(W * xc, H * yc, minWH * this.r0);
+        RPH.pen.circle(RPH.W * xc, RPH.H * yc, RPH.minWH * this.r0);
 
         RPH.ctx.fillStyle = "rgb(240,245,240)";
-        RPH.pen.circle(W * xc, H * yc, minWH * this.r2);
+        RPH.pen.circle(RPH.W * xc, RPH.H * yc, RPH.minWH * this.r2);
 
     },
 
@@ -83,18 +83,18 @@ RPH.phone = {
         RPH.ctx.strokeStyle = "rgb(240,245,240)";
 
         RPH.ctx.beginPath();
-        RPH.ctx.moveTo(W * xc + this.r0 * minWH * Math.cos(angle), H * yc + this.r0 * minWH * Math.sin(angle));
-        RPH.ctx.lineTo(W * xc + this.r1 * minWH * Math.cos(angle), H * yc + this.r1 * minWH * Math.sin(angle));
-        RPH.ctx.lineWidth = minWH / 150;
+        RPH.ctx.moveTo(RPH.W * xc + this.r0 * RPH.minWH * Math.cos(angle), RPH.H * yc + this.r0 * RPH.minWH * Math.sin(angle));
+        RPH.ctx.lineTo(RPH.W * xc + this.r1 * RPH.minWH * Math.cos(angle), RPH.H * yc + this.r1 * RPH.minWH * Math.sin(angle));
+        RPH.ctx.lineWidth = RPH.minWH / 150;
         RPH.ctx.stroke();
 
     },
 
     drawNumber: function() {
 
-        RPH.ctx.font = minWH / 25 + "px " + this.fontString;
+        RPH.ctx.font = RPH.minWH / 25 + "px " + this.fontString;
         RPH.ctx.fillStyle = "#444444";
-        RPH.ctx.fillText(RPH.dialer.number, W * this.text.x, H * this.text.y);
+        RPH.ctx.fillText(RPH.dialer.number, RPH.W * this.text.x, RPH.H * this.text.y);
 
     },
 
@@ -102,7 +102,7 @@ RPH.phone = {
 
         var i, angle;
 
-        RPH.ctx.font = minWH / 18 + "px Courier";
+        RPH.ctx.font = RPH.minWH / 18 + "px Courier";
 
         for (i = 0; i < 10; i += 1) {
 
@@ -110,9 +110,9 @@ RPH.phone = {
 
             angle = RPH.phone.oBeta + RPH.phone.dBeta * i + RPH.phone.alpha;
             RPH.pen.circle(
-                W * this.centroid.x + minWH * this.r1 * Math.cos(angle),
-                H * this.centroid.y + minWH * this.r1 * Math.sin(angle),
-                minWH * this.r3
+                RPH.W * this.centroid.x + RPH.minWH * this.r1 * Math.cos(angle),
+                RPH.H * this.centroid.y + RPH.minWH * this.r1 * Math.sin(angle),
+                RPH.minWH * this.r3
             );
 
             RPH.ctx.fillStyle = "#444444";
@@ -120,8 +120,8 @@ RPH.phone = {
 
             RPH.ctx.fillText(
                 i,
-                W * this.centroid.x + minWH * this.r1 * Math.cos(angle),
-                H * this.centroid.y + minWH * this.r1 * Math.sin(angle)
+                RPH.W * this.centroid.x + RPH.minWH * this.r1 * Math.cos(angle),
+                RPH.H * this.centroid.y + RPH.minWH * this.r1 * Math.sin(angle)
             );
 
         }
@@ -141,7 +141,7 @@ RPH.phone = {
         y: 0.1,
         isHovered: function() {
 
-            return (RPH.mouse.y / minWH < this.y + 0.02) && (RPH.mouse.y / minWH > this.y - 0.02);
+            return (RPH.mouse.y / RPH.minWH < this.y + 0.02) && (RPH.mouse.y / RPH.minWH > this.y - 0.02);
 
         }
 

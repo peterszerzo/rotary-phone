@@ -1,7 +1,5 @@
 var RPH = {};
 
-var W, H, minWH;
-
 RPH.dialer = {
 
     number: "",
@@ -36,10 +34,6 @@ RPH.mouseDown = function(e) {
 
 RPH.mouseMove = function(e) {
 
-    var xc = RPH.phone.centroid.x,
-        yc = RPH.phone.centroid.y,
-        angle, i, xt, yt;
-
     RPH.mouse.move(e);
 
     if (RPH.mouse.isDragging) {
@@ -53,7 +47,7 @@ RPH.mouseMove = function(e) {
     }
 
     RPH.fontString = (RPH.phone.text.isHovered()) ? "bold " : "";
-    RPH.fontString += minWH / 30 + "px Courier";
+    RPH.fontString += RPH.minWH / 30 + "px Courier";
 
 
 };
@@ -71,7 +65,11 @@ RPH.draw = function() {
     RPH.phone.drawNumber();
     RPH.phone.drawDigits();
 
-    if (RPH.phone.alpha > 0 && !RPH.mouse.isDragging) RPH.phone.alpha -= 0.02;
+    if (RPH.phone.alpha > 0 && !RPH.mouse.isDragging) {
+
+        RPH.phone.alpha -= 0.02;
+
+    }
 
     RPH.canvas.addEventListener('mousedown', RPH.mouseDown);
     RPH.canvas.addEventListener('mousemove', RPH.mouseMove);
@@ -117,9 +115,9 @@ RPH.resizeCanvas = function() {
 
     RPH.canvas.width = window.innerWidth;
     RPH.canvas.height = window.innerHeight;
-    W = RPH.canvas.width;
-    H = RPH.canvas.height;
-    minWH = Math.min(W, H);
+    RPH.W = RPH.canvas.width;
+    RPH.H = RPH.canvas.height;
+    RPH.minWH = Math.min(RPH.W, RPH.H);
 
 };
 
