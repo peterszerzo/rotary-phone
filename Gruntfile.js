@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
-        /*copy: {
+        copy: {
 
             development: {
                 src: devRelease,
@@ -103,11 +103,11 @@ module.exports = function(grunt) {
 
             target: {
 
-                src: [ sourceFilesGeneric ]
+                src: [sourceFilesGeneric]
 
             }
 
-        },*/
+        },
 
 
         "jsbeautifier": {
@@ -142,13 +142,13 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks('grunt-jsbeautifier');
-    //grunt.loadNpmTasks('grunt-contrib-jshint');
-    //grunt.loadNpmTasks('grunt-contrib-concat');
-    //grunt.loadNpmTasks('grunt-contrib-uglify');
-    //grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     //grunt.loadNpmTasks('grunt-mocha');
     //grunt.loadNpmTasks('grunt-jsdoc');
 
-    grunt.registerTask('default', ['jsbeautifier' /*, 'jshint', 'concat', 'uglify', 'copy', 'mocha' , 'jsdoc'*/ ]);
+    grunt.registerTask('default', ['jsbeautifier', 'jshint', 'concat', 'uglify', 'copy' /*, 'mocha' , 'jsdoc'*/ ]);
 
 };

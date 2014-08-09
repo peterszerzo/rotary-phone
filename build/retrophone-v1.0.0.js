@@ -1,3 +1,6 @@
+/*! RetroPhone v1.0.0 - 2014-08-09 
+ *  Copyright: Peter Szerzo, 2014 */
+
 var RPH = {};
 
 var valid = true;
