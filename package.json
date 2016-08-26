@@ -4,24 +4,12 @@
   "description": "old-school dialer",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -rf build && mkdir build && cat src/index.js src/mouse.js src/pen.js src/phone.js src/math.js > build/index.js && cp src/index.html build/index.html && cp src/index.html build/200.html"
   },
   "keywords": [
     "design",
     "javascript"
   ],
   "author": "Peter Szerzo",
-  "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-concat": "~0.4.0",
-    "grunt-contrib-uglify": "~0.5.0",
-    "grunt-contrib-copy": "~0.5.0",
-    "grunt-contrib-jshint": "~0.10.0",
-    "grunt-jsbeautifier": "~0.2.7",
-    "grunt-docular": "~0.1.2",
-    "grunt-jsdoc": "~0.5.6",
-    "grunt-mocha": "~0.4.0",
-    "grunt-jslint": "~1.1.12",
-    "grunt-lib-phantomjs": "~0.6.0"
-  }
+  "devDependencies": {}
 }

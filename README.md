@@ -1,4 +1,3 @@
-retro-phone
-===========
+# retro-phone
 
 old-school phone dialing app
