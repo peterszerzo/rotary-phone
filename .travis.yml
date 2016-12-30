@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "6.0.0"
+script:
+  - chmod +x prod.sh
+  - ./prod.sh
+deploy:
+  skip_cleanup: true
+  provider: surge
+  project: ./dist/
+  domain: rotary-phone.peterszerzo.com
